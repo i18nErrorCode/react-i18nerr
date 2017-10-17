@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button, Checkbox, message } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, message, Alert } from 'antd';
 import get from 'lodash.get';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { graphql } from '../lib/graphql';
+import { store } from '../redux/user';
 
 import './login.css';
 
@@ -25,7 +28,9 @@ class NormalLoginForm extends Component {
         }
       `)()
           .then(data => {
+            console.log(this);
             localStorage.setItem('token', get(data, ['public', 'login', 'token']));
+            this.props.storeUserInfo(get(data, ['public', 'login']));
             message.info('Login success...');
           })
           .catch(err => {
@@ -37,7 +42,7 @@ class NormalLoginForm extends Component {
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
-      <Form onSubmit={this.handleSubmit} className="login-form">
+      <Form onSubmit={this.handleSubmit.bind(this)} className="login-form">
         <FormItem>
           {getFieldDecorator('username', {
             rules: [{ required: true, message: 'Please input your username!' }]
@@ -57,31 +62,62 @@ class NormalLoginForm extends Component {
           )}
         </FormItem>
         <FormItem>
-          {getFieldDecorator('remember', {
-            valuePropName: 'checked',
-            initialValue: true
-          })(<Checkbox>Remember me</Checkbox>)}
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
           <Button type="primary" htmlType="submit" className="login-form-button">
             Login
           </Button>
-          Or <a href="">register now!</a>
         </FormItem>
       </Form>
     );
   }
 }
 
-const WrappedNormalLoginForm = Form.create()(NormalLoginForm);
+const WrappedNormalLoginForm = Form.create()(connection(NormalLoginForm));
 
-export default class Login extends Component {
+class Login extends Component {
+  logout() {
+    console.info(`logout`);
+    localStorage.removeItem('token');
+    this.props.storeUserInfo('');
+  }
   render() {
+    const isLogin = !!this.props.USER;
+    const user = this.props.USER;
     return (
       <div>
-        <WrappedNormalLoginForm />
+        {isLogin ? (
+          <div>
+            <Alert
+              message={`您好, ${user.username}`}
+              description="您的账号已登录..."
+              type="success"
+              showIcon
+            />
+            <Button onClick={this.logout.bind(this)}>点击登出</Button>
+          </div>
+        ) : (
+          <WrappedNormalLoginForm />
+        )}
       </div>
     );
   }
 }
+
+function connection(component) {
+  return connect(
+    function mapStateToProps(state) {
+      return {
+        USER: state.USER
+      };
+    },
+    function mapDispatchToProps(dispatch) {
+      return bindActionCreators(
+        {
+          storeUserInfo: store
+        },
+        dispatch
+      );
+    }
+  )(component);
+}
+
+export default connection(Login);

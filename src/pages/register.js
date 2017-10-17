@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button, Checkbox, message } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, message, Alert } from 'antd';
 import get from 'lodash.get';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { graphql } from '../lib/graphql';
+import { store } from '../redux/user';
 
 import './login.css';
 
@@ -66,14 +69,53 @@ class NormalLoginForm extends Component {
   }
 }
 
-const WrappedNormalLoginForm = Form.create()(NormalLoginForm);
+const WrappedNormalLoginForm = Form.create()(connection(NormalLoginForm));
 
-export default class Register extends Component {
+class Register extends Component {
+  logout() {
+    console.info(`logout`);
+    localStorage.removeItem('token');
+    this.props.storeUserInfo('');
+  }
   render() {
+    const isLogin = !!this.props.USER;
+    const user = this.props.USER;
     return (
       <div>
-        <WrappedNormalLoginForm />
+        {isLogin ? (
+          <div>
+            <Alert
+              message={`您好, ${user.username}`}
+              description="您的账号已登录..."
+              type="success"
+              showIcon
+            />
+            <Button onClick={this.logout.bind(this)}>点击登出</Button>
+          </div>
+        ) : (
+          <WrappedNormalLoginForm />
+        )}
       </div>
     );
   }
 }
+
+function connection(component) {
+  return connect(
+    function mapStateToProps(state) {
+      return {
+        USER: state.USER
+      };
+    },
+    function mapDispatchToProps(dispatch) {
+      return bindActionCreators(
+        {
+          storeUserInfo: store
+        },
+        dispatch
+      );
+    }
+  )(component);
+}
+
+export default connection(Register);
