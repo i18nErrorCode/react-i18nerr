@@ -170,7 +170,7 @@ class Info extends Component {
         </Button>
         <Table pagination={false} bordered dataSource={dataSource} columns={columns} />
 
-        <Modal title="添加类型" footer={null} visible={this.state.visible}>
+        <Modal onCancel={this.handleCancel.bind(this)} maskClosable={true} title="添加类型" footer={null} visible={this.state.visible}>
           <Form onSubmit={e => this.handleSubmit(e, action)} className="login-form">
             <FormItem label="key">
               {getFieldDecorator("key", {

@@ -1,54 +1,353 @@
 import React, { Component } from "react";
-
 import get from "lodash.get";
-
+import { Table, Input, Form, Button, Modal, message, Tag } from "antd";
+import { store } from "../redux/table";
 import { graphql } from "../lib/graphql";
 import { Link } from "react-router-dom";
-export default class Home extends Component {
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+const FormItem = Form.Item;
+class Home extends Component {
   state = {
-    tables: { data: [], meta: {} }
+    tables: { data: [], meta: {} },
+    action: "",
+    removeTable: false, // 是否删除表格
+    isRemoveMember: false, // 默认为false添加
+    deleteMember: "", // 要删除的成员
+    rowId: "",
+    visible: false,
+    showMemberModal: false,
+    columns: [
+      {
+        title: "table name",
+        dataIndex: "name"
+      },
+      {
+        title: "description",
+        dataIndex: "description"
+      },
+      {
+        title: "username",
+        dataIndex: "username"
+      },
+      {
+        title: "member",
+        dataIndex: "member",
+        render: (text, record) => {
+          return (
+            <div>
+              {record.username &&
+                record.member.map(v => {
+                  return (
+                    <Tag
+                      key={v.uid}
+                      closable={v.username === record.username ? false : true}
+                      onClose={() => this.deleteMember(record, v.username)}
+                    >
+                      {v.username}
+                    </Tag>
+                  );
+                })}
+              <Button
+                disabled={this.props.USER.username !== record.username ? true : false}
+                size="small"
+                type="dashed"
+                onClick={() => this.addMember(record)}
+              >
+                + Add{" "}
+              </Button>
+            </div>
+          );
+        }
+      },
+      {
+        title: "operation",
+        dataIndex: "operation",
+        render: (text, record) => {
+          return (
+            <div>
+              <Link to={`info/${record.id}`}>详情</Link>
+              <span className="ant-divider" />
+              {this.props.USER.username !== record.username ? (
+                <span>修改</span>
+              ) : (
+                <span className="action-btn" onClick={() => this.handleEdit(record)}>
+                  修改
+                </span>
+              )}
+            </div>
+          );
+        }
+      }
+    ]
   };
-  async componentWillMount() {
-    try {
-      const data = await graphql(`
-        query getTableList {
-          me {
-            tables(query: { limit: 10 }) {
-              data {
+  handleCancel = e => {
+    this.setState({
+      visible: false
+    });
+  };
+  hideMmeberModal = () => {
+    this.setState({
+      showMemberModal: false
+    });
+  };
+  /**
+   * 创建table
+   */
+  handleAdd = record => {
+    this.props.form.setFieldsValue({
+      name: "",
+      description: ""
+    });
+    this.setState({
+      visible: true,
+      action: "createTable"
+    });
+  };
+  /**
+   * 修改table
+   * @param record
+   */
+  handleEdit = record => {
+    this.props.form.setFieldsValue({
+      name: record.name,
+      description: record.description
+    });
+    this.setState({
+      visible: true,
+      action: "updateTable",
+      rowId: record.id
+    });
+  };
+
+  /**
+   * 添加成员
+   */
+  addMember = record => {
+    this.setState({
+      showMemberModal: true,
+      rowId: record.id
+    });
+  };
+  setMemberName(v) {
+    this.setState({ addMemberName: v.target.value });
+  }
+  /**
+   * 删除成员
+   * @param record
+   */
+  deleteMember = (record, deleteUser) => {
+    let _this = this;
+    this.setState(
+      {
+        isRemoveMember: true,
+        rowId: record.id,
+        deleteMember: deleteUser
+      },
+      () => {
+        _this.submitMember();
+      }
+    );
+  };
+  /**
+   * 处理表单提交table数据
+   * @param e
+   */
+  handleSubmit(e, action) {
+    e.preventDefault();
+    this.props.form.validateFields(async (err, values) => {
+      if (!err) {
+        const { rowId, removeTable } = this.state;
+        let _argv;
+        if (action === "updateTable") {
+          _argv = `{id: "${rowId}", name: "${values.name}", description: "${values.description}"}`;
+        }
+        if (action === "createTable") {
+          _argv = `{name: "${values.name}", description: "${values.description}"}`;
+        }
+        try {
+          const tableData = await graphql(`
+          mutation ${action} {
+            me {
+              ${action}(argv: ${_argv}) {
                 id
                 uid
                 name
-              }
-              meta {
-                skip
-                skip
-                limit
-                num
-                page
+                description
+                owner {
+                  username
+                }
               }
             }
           }
+        `)();
+          message.info("操作成功");
+          this.setState({
+            visible: false
+          });
+          const data = await this.getTables()();
+          this.props.storeTable(get(data, ["me", "tables", "data"]));
+        } catch (err) {
+          console.error("handle table err: ",err);
+        }
+      }
+    });
+  }
+  async submitMember() {
+    const { addMemberName, rowId, deleteMember, isRemoveMember } = this.state;
+    let _argv;
+    if (isRemoveMember) {
+      _argv = `{id: "${rowId}", username: "${deleteMember}", isRemove: ${true}}`;
+    } else {
+      _argv = `{id: "${rowId}", username: "${addMemberName}"}`;
+    }
+    try {
+      const changeMember = await graphql(`
+        mutation changeMember {
+          me {
+            changeMember(argv: ${_argv}) 
+          }
         }
       `)();
-
       this.setState({
-        tables: get(data, ["me", "tables"])
+        showMemberModal: false
       });
-    } catch (err) {}
+      if (!isRemoveMember) {
+        const data = await this.getTables()();
+        this.props.storeTable(get(data, ["me", "tables", "data"]));
+      }
+    } catch (err) {
+      console.error("changeMember err: ",err);
+    }
   }
+  async componentWillMount() {
+    try {
+      const data = await this.getTables()();
+      this.props.storeTable(get(data, ["me", "tables", "data"]));
+    } catch (err) {
+      console.error("tables err: ", err);
+    }
+  }
+  getTables() {
+    return graphql(`
+      query getTableList {
+        me {
+          tables(query: { limit: 10 }) {
+            data {
+              id
+              uid
+              name
+              description
+              owner {
+                username
+              }
+              member {
+                uid
+                username
+              }
+            }
+            meta {
+              skip
+              skip
+              limit
+              num
+              page
+            }
+          }
+        }
+      }
+    `);
+  }
+
   render() {
+    const { columns, action, MemberAction } = this.state;
+    let dataSource = this.props.TABLE;
+    const { getFieldDecorator } = this.props.form;
+
     return (
       <div>
-        {this.state.tables.data.map(d => {
-          return (
-            <div key={d.id}>
-              <p>name: {d.name}</p>
-              <p>author: {d.uid}</p>
-              <Link to={`info/${d.id}`}>id: {d.id}</Link>
-            </div>
-          );
-        })}
+        <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
+          添加
+        </Button>
+        <Table pagination={false} bordered dataSource={dataSource} columns={columns} />
+
+        <Modal
+          onCancel={this.handleCancel.bind(this)}
+          maskClosable={true}
+          title="添加"
+          footer={null}
+          visible={this.state.visible}
+        >
+          <Form onSubmit={e => this.handleSubmit(e, action)} className="login-form">
+            <FormItem label="name">
+              {getFieldDecorator("name", {
+                rules: [{ required: true, message: "请输入name!" }]
+              })(<Input placeholder="table name" />)}
+            </FormItem>
+            <FormItem label="description">
+              {getFieldDecorator("description", {
+                rules: [{ required: true, message: "请输入description!" }]
+              })(<Input placeholder="table description" />)}
+            </FormItem>
+            <FormItem>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                确定
+              </Button>
+              <Button onClick={this.handleCancel.bind(this)} className="login-form-button">
+                取消
+              </Button>
+            </FormItem>
+          </Form>
+        </Modal>
+        <Modal
+          onCancel={this.hideMmeberModal.bind(this)}
+          maskClosable={true}
+          title="添加成员"
+          footer={null}
+          visible={this.state.showMemberModal}
+        >
+          <FormItem label="member-name">
+            <Input onBlur={v => this.setMemberName(v)} placeholder="member name" />
+          </FormItem>
+          <FormItem>
+            <Button
+              type="primary"
+              onClick={() => this.submitMember()}
+              className="login-form-button"
+            >
+              确定
+            </Button>
+            <Button onClick={this.hideMmeberModal.bind(this)} className="login-form-button">
+              取消
+            </Button>
+          </FormItem>
+        </Modal>
       </div>
     );
   }
 }
+
+const connection = cmp => {
+  return connect(
+    function mapStateToProps(state) {
+      return {
+        TABLE: state.TABLE.map(v => {
+          v.username = v.owner.username;
+          v.key = v.id;
+          return v;
+        }),
+        ROW_FORM: state.ROW_FORM,
+        USER: state.USER
+      };
+    },
+    function mapDispatchToProps(dispatch) {
+      return bindActionCreators(
+        {
+          storeTable: store
+        },
+        dispatch
+      );
+    }
+  )(cmp);
+};
+export default connection(Form.create()(Home));
