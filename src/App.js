@@ -78,6 +78,11 @@ class App extends Component {
                     path="/register"
                     render={() => <DynamicLoad promise={import('./pages/register')} />}
                   />
+                  <Route
+                    exact
+                    path="/info/:id"
+                    render={() => <DynamicLoad promise={import('./pages/info')} />}
+                  />
                 </Switch>
               </Card>
             </Col>

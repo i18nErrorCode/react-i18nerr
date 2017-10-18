@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import get from 'lodash.get';
+import get from "lodash.get";
 
-import { graphql } from '../lib/graphql';
-
+import { graphql } from "../lib/graphql";
+import { Link } from "react-router-dom";
 export default class Home extends Component {
   state = {
     tables: { data: [], meta: {} }
@@ -32,7 +32,7 @@ export default class Home extends Component {
       `)();
 
       this.setState({
-        tables: get(data, ['me', 'tables'])
+        tables: get(data, ["me", "tables"])
       });
     } catch (err) {}
   }
@@ -44,6 +44,7 @@ export default class Home extends Component {
             <div key={d.id}>
               <p>name: {d.name}</p>
               <p>author: {d.uid}</p>
+              <Link to={`info/${d.id}`}>id: {d.id}</Link>
             </div>
           );
         })}

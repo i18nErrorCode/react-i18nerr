@@ -5,7 +5,7 @@ export function graphql(query = '') {
     const token = localStorage.getItem('token');
     return axios
       .post(
-        `http://localhost:3000/api/graphql`,
+        `http://192.168.8.144:3000/api/graphql`,
         { query },
         {
           withCredentials: false,
