@@ -150,7 +150,7 @@ class Info extends Component {
     return graphql(`
        query getRows{
           me{
-            rows(query: {limit: 10, keyJson: ${JSON.stringify(query)}}){
+            rows(id: "${this.props.match.params.id}"){
               data{
                 id
                 tid
