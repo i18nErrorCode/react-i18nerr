@@ -6,7 +6,7 @@ import { graphql } from "../lib/graphql";
 import { bindActionCreators } from "redux";
 import { store } from "../redux/info";
 import { rowFormStore } from "../redux/rowForm";
-import { Table, Input, Form, Button, Modal, message } from "antd";
+import { Table, Input, Form, Button, Modal } from "antd";
 const FormItem = Form.Item;
 class Info extends Component {
   constructor(props) {
@@ -102,7 +102,7 @@ class Info extends Component {
           }
         `)();
           Modal.success({
-            title: '操作成功'
+            title: "操作成功"
           });
           this.setState({
             visible: false
@@ -112,7 +112,7 @@ class Info extends Component {
           this.props.storeRowData({});
         } catch (err) {
           Modal.error({
-            title: '操作失败',
+            title: "操作失败",
             content: err.message
           });
         }
@@ -122,7 +122,7 @@ class Info extends Component {
   async componentWillMount() {
     try {
       const data = await this.getAllRows()();
-      this.props.storeInfo(get(data, ["me", "rows", "data"]));
+      this.props.storeInfo(get(data, ["public", "rows", "data"]));
     } catch (err) {}
   }
 
@@ -149,7 +149,7 @@ class Info extends Component {
     });
     return graphql(`
        query getRows{
-          me{
+          public{
             rows(id: "${this.props.match.params.id}"){
               data{
                 id
@@ -170,8 +170,7 @@ class Info extends Component {
    * 处理输入框输入的值
    * @returns {XML}
    */
-  handleChange(e, _key){
-    console.log("key===>", e.target.value);
+  handleChange(e, _key) {
     this.rowData[_key] = e.target.value;
     this.props.storeRowData(this.rowData);
   }
@@ -182,32 +181,46 @@ class Info extends Component {
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
-          添加
-        </Button>
-        <Table pagination={false} bordered dataSource={dataSource} columns={columns} />
+        <div className="table-operations">
+          <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
+            添加
+          </Button>
+        </div>
+        <Table
+          pagination={false}
+          bordered
+          dataSource={dataSource}
+          columns={columns}
+          title={() => <h2>{this.props.match.params.name}</h2>}
+        />
 
-        <Modal onCancel={this.handleCancel.bind(this)} maskClosable={true} title="添加类型" footer={null} visible={this.state.visible}>
+        <Modal
+          onCancel={this.handleCancel.bind(this)}
+          maskClosable={true}
+          title="添加类型"
+          footer={null}
+          visible={this.state.visible}
+        >
           <Form onSubmit={e => this.handleSubmit(e, action)} className="login-form">
             <FormItem label="key">
               {getFieldDecorator("key", {
                 rules: [{ required: true, message: "请输入key!" }]
-              })(<Input placeholder="key" onBlur={(e) => this.handleChange(e, "key")}/>)}
+              })(<Input placeholder="key" onBlur={e => this.handleChange(e, "key")} />)}
             </FormItem>
             <FormItem label="简体中文">
               {getFieldDecorator("value_cn", {
                 rules: [{ required: true, message: "请输入简体中文!" }]
-              })(<Input placeholder="简体中文" onBlur={(e) => this.handleChange(e, "value_cn")}/>)}
+              })(<Input placeholder="简体中文" onBlur={e => this.handleChange(e, "value_cn")} />)}
             </FormItem>
             <FormItem label="English">
               {getFieldDecorator("value_en", {
                 rules: [{ required: true, message: "请输入英文!" }]
-              })(<Input placeholder="English" onBlur={(e) => this.handleChange(e, "value_en")}/>)}
+              })(<Input placeholder="English" onBlur={e => this.handleChange(e, "value_en")} />)}
             </FormItem>
             <FormItem label="繁体中文">
               {getFieldDecorator("value_tw", {
                 rules: [{ required: true, message: "请输入繁体中文!" }]
-              })(<Input placeholder="繁体中文" onBlur={(e) => this.handleChange(e, "value_tw")}/>)}
+              })(<Input placeholder="繁体中文" onBlur={e => this.handleChange(e, "value_tw")} />)}
             </FormItem>
             <FormItem>
               <Button type="primary" htmlType="submit" className="login-form-button">

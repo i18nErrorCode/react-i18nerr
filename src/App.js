@@ -80,7 +80,7 @@ class App extends Component {
                   />
                   <Route
                     exact
-                    path="/info/:id"
+                    path="/info/:id/:name"
                     render={() => <DynamicLoad promise={import('./pages/info')} />}
                   />
                   <Route
