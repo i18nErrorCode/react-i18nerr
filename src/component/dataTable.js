@@ -2,18 +2,20 @@ import React, { Component } from "react";
 import get from "lodash.get";
 import { Table, Input, Form, Button, Modal, message, Tag, Pagination } from "antd";
 import { store } from "../redux/table";
+import { tableFormStore } from "../redux/tableForm";
 import { graphql } from "../lib/graphql";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 const FormItem = Form.Item;
 class DataTable extends Component {
+  tableData = {};
   state = {
     tables: { data: [], meta: {} },
     totalPage: 0,
     action: "",
     removeTable: false, // 是否删除表格
-    isRemoveMember: false, // 默认为false添加
+    isRemoveMember: false, // 默认false为添加
     deleteMember: "", // 要删除的成员
     rowId: "",
     visible: false,
@@ -101,8 +103,8 @@ class DataTable extends Component {
    */
   handleAdd = record => {
     this.props.form.setFieldsValue({
-      name: "",
-      description: ""
+      name: this.props.TABLE_FORM.name,
+      description: this.props.TABLE_FORM.description
     });
     this.setState({
       visible: true,
@@ -134,6 +136,11 @@ class DataTable extends Component {
       rowId: record.id
     });
   };
+
+  /**
+   * 输入需要添加的table成员
+   * @param v
+   */
   setMemberName(v) {
     this.setState({ addMemberName: v.target.value });
   }
@@ -197,6 +204,11 @@ class DataTable extends Component {
       }
     });
   }
+
+  /**
+   * 处理添加、删除表单成员逻辑
+   * @returns {Promise.<void>}
+   */
   async submitMember() {
     const { addMemberName, rowId, deleteMember, isRemoveMember } = this.state;
     let _argv;
@@ -280,7 +292,17 @@ class DataTable extends Component {
   handlePagination(p) {
     this.getTables(p-1);
   }
-
+  setName(e) {
+    console.log("setName:", e.target.value)
+  }
+  /**
+   * 处理输入框输入的值
+   * @returns {XML}
+   */
+  handleChange(e, _key){
+    this.tableData[_key] = e.target.value;
+    this.props.storeTableForm(this.tableData);
+  }
   render() {
     const { columns, action, totalPage } = this.state;
     let dataSource = this.props.TABLE;
@@ -304,12 +326,12 @@ class DataTable extends Component {
             <FormItem label="name">
               {getFieldDecorator("name", {
                 rules: [{ required: true, message: "请输入name!" }]
-              })(<Input placeholder="table name" />)}
+              })(<Input placeholder="table name" onBlur={(e)=>this.handleChange(e, "name")}/>)}
             </FormItem>
             <FormItem label="description">
               {getFieldDecorator("description", {
                 rules: [{ required: true, message: "请输入description!" }]
-              })(<Input placeholder="table description" />)}
+              })(<Input placeholder="table description" onBlur={(e)=>this.handleChange(e, "description")}/>)}
             </FormItem>
             <FormItem>
               <Button type="primary" htmlType="submit" className="login-form-button">
@@ -358,14 +380,15 @@ const connection = cmp => {
           v.key = v.id;
           return v;
         }),
-        ROW_FORM: state.ROW_FORM,
+        TABLE_FORM: state.TABLE_FORM,
         USER: state.USER
       };
     },
     function mapDispatchToProps(dispatch) {
       return bindActionCreators(
         {
-          storeTable: store
+          storeTable: store,
+          storeTableForm: tableFormStore
         },
         dispatch
       );

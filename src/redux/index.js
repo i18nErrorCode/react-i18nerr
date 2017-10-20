@@ -6,6 +6,7 @@ import userReducer from './user';
 import infoReducer from './info';
 import tableReducer from './table';
 import rowFormReducer from './rowForm';
+import tableFormReducer from './tableForm';
 
 function createStore() {
   const rootReducer = combineReducers({
@@ -13,6 +14,7 @@ function createStore() {
     INFO: infoReducer,
     TABLE: tableReducer,
     ROW_FORM: rowFormReducer,
+    TABLE_FORM: tableFormReducer,
   });
 
   return configureStore(rootReducer);
