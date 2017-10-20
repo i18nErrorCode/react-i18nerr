@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { Form, Icon, Input, Button, Checkbox, message, Alert } from 'antd';
-import get from 'lodash.get';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { graphql } from '../lib/graphql';
-import { store } from '../redux/user';
-
-import './login.css';
+import React, { Component } from "react";
+import { Form, Icon, Input, Button, message, Modal } from "antd";
+import get from "lodash.get";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { graphql } from "../lib/graphql";
+import { store } from "../redux/user";
+import { Redirect } from "react-router-dom";
+import "./login.css";
 
 const FormItem = Form.Item;
 
@@ -28,13 +28,17 @@ class NormalLoginForm extends Component {
         }
       `)()
           .then(data => {
-            console.log(this);
-            localStorage.setItem('token', get(data, ['public', 'login', 'token']));
-            this.props.storeUserInfo(get(data, ['public', 'login']));
-            message.info('Login success...');
+            localStorage.setItem("token", get(data, ["public", "login", "token"]));
+            this.props.storeUserInfo(get(data, ["public", "login"]));
+            message.info("Login success...");
           })
           .catch(err => {
-            message.error(err.message);
+            console.log("err:", err);
+            Modal.warning({
+              title: "登录失败",
+              content: <p>{err.message}</p>,
+              onOk() {}
+            });
           });
       }
     });
@@ -44,15 +48,15 @@ class NormalLoginForm extends Component {
     return (
       <Form onSubmit={this.handleSubmit.bind(this)} className="login-form">
         <FormItem>
-          {getFieldDecorator('username', {
-            rules: [{ required: true, message: 'Please input your username!' }]
+          {getFieldDecorator("username", {
+            rules: [{ required: true, message: "Please input your username!" }]
           })(
             <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder="Username" />
           )}
         </FormItem>
         <FormItem>
-          {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }]
+          {getFieldDecorator("password", {
+            rules: [{ required: true, message: "Please input your Password!" }]
           })(
             <Input
               prefix={<Icon type="lock" style={{ fontSize: 13 }} />}
@@ -74,31 +78,10 @@ class NormalLoginForm extends Component {
 const WrappedNormalLoginForm = Form.create()(connection(NormalLoginForm));
 
 class Login extends Component {
-  logout() {
-    console.info(`logout`);
-    localStorage.removeItem('token');
-    this.props.storeUserInfo('');
-  }
   render() {
     const isLogin = !!this.props.USER;
     const user = this.props.USER;
-    return (
-      <div>
-        {isLogin ? (
-          <div>
-            <Alert
-              message={`您好, ${user.username}`}
-              description="您的账号已登录..."
-              type="success"
-              showIcon
-            />
-            <Button onClick={this.logout.bind(this)}>点击登出</Button>
-          </div>
-        ) : (
-          <WrappedNormalLoginForm />
-        )}
-      </div>
-    );
+    return <div>{isLogin ? <Redirect to="user" /> : <WrappedNormalLoginForm />}</div>;
   }
 }
 

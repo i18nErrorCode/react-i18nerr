@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { Menu } from "antd";
-import { NavLink } from "react-router-dom";
+import { NavLink, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { store } from "../redux/user";
 
 class StatusBar extends Component {
   logout() {
-    console.info(`logout`);
     localStorage.removeItem("token");
     this.props.storeUserInfo("");
+    this.props.history.push("/login");
   }
   render() {
     return (
@@ -57,5 +57,4 @@ function connection(component) {
     }
   )(component);
 }
-export default connection(StatusBar);
-// <a onClick={this.logout.bind(this)}>登出</a>
+export default connection(withRouter(StatusBar));
