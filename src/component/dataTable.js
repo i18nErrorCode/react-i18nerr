@@ -1,6 +1,18 @@
 import React, { Component } from "react";
 import get from "lodash.get";
-import { Table, Input, Form, Button, Modal, message, Tag, Pagination } from "antd";
+import {
+  Table,
+  Input,
+  Form,
+  Button,
+  Modal,
+  message,
+  Tag,
+  Pagination,
+  Select,
+  Row,
+  Col
+} from "antd";
 import { store } from "../redux/table";
 import { tableFormStore } from "../redux/tableForm";
 import { graphql } from "../lib/graphql";
@@ -8,6 +20,8 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 const FormItem = Form.Item;
+const Option = Select.Option;
+
 class DataTable extends Component {
   tableData = {};
   state = {
@@ -20,6 +34,7 @@ class DataTable extends Component {
     rowId: "",
     visible: false,
     showMemberModal: false,
+    fileType: "js", // 选择下载的文件类型
     columns: [
       {
         title: "table name",
@@ -74,15 +89,45 @@ class DataTable extends Component {
         dataIndex: "operation",
         render: (text, record) => {
           return (
-            <div>
-              <Link to={`info/${record.id}`}>详情</Link>
+            <Row>
+              <Col span={2}>
+                <Link to={`info/${record.id}`}>详情</Link>
+              </Col>
               {this.props.uid && (
-                <span className="action-btn" onClick={() => this.handleEdit(record)}>
-                <span className="ant-divider" />
-                  修改
-                </span>
+                <Col span={8}>
+                  <span className="action-btn" onClick={() => this.handleEdit(record)}>
+                    <span className="ant-divider" />
+                    修改
+                  </span>
+                </Col>
               )}
-            </div>
+              {!this.props.uid && (
+                <Col span={6}>
+                  <Select
+                    defaultValue="JavaScript"
+                    style={{ width: 100 }}
+                    onChange={v => this.selectType(v)}
+                  >
+                    <Option value="js">JavaScript</Option>
+                    <Option value="ts">TypeScript</Option>
+                    <Option value="json">Json</Option>
+                    <Option value="go">Go</Option>
+                  </Select>
+                </Col>
+              )}
+              {!this.props.uid && (
+                <Col span={4}>
+                  <Button>
+                    <a
+                      target="_blank"
+                      href={"http://192.168.8.144:3000/api/raw/"+record.id+"."+this.state.fileType}
+                    >
+                      下载
+                    </a>
+                  </Button>
+                </Col>
+              )}
+            </Row>
           );
         }
       }
@@ -243,8 +288,7 @@ class DataTable extends Component {
    * 获取tables
    * @returns {Promise.<void>}
    */
-  async getTables(page=0) {
-    console.log("uid===》", this.props.uid);
+  async getTables(page = 0) {
     let _keyJson;
     this.props.uid
       ? (_keyJson = JSON.stringify(`{"uid": "${this.props.uid}"}`))
@@ -279,8 +323,8 @@ class DataTable extends Component {
       }
     `)();
       this.props.storeTable(get(data, ["me", "tables", "data"]));
-      this.setState({totalPage:data.me.tables.meta.count});
-    }catch (err) {
+      this.setState({ totalPage: data.me.tables.meta.count });
+    } catch (err) {
       console.error("tables err: ", err);
     }
   }
@@ -290,18 +334,24 @@ class DataTable extends Component {
    * @param p
    */
   handlePagination(p) {
-    this.getTables(p-1);
+    this.getTables(p - 1);
   }
-  setName(e) {
-    console.log("setName:", e.target.value)
-  }
+
   /**
    * 处理输入框输入的值
    * @returns {XML}
    */
-  handleChange(e, _key){
+  handleChange(e, _key) {
     this.tableData[_key] = e.target.value;
     this.props.storeTableForm(this.tableData);
+  }
+
+  /**
+   * 选择下载的语言版本
+   * @param v
+   */
+  selectType(v) {
+    this.setState({ fileType: v });
   }
   render() {
     const { columns, action, totalPage } = this.state;
@@ -310,11 +360,18 @@ class DataTable extends Component {
 
     return (
       <div>
-        <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
-          添加
-        </Button>
+        {this.props.uid && (
+          <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
+            添加
+          </Button>
+        )}
         <Table pagination={false} bordered dataSource={dataSource} columns={columns} />
-        <Pagination showQuickJumper defaultCurrent={1} total={totalPage} onChange={(p)=>this.handlePagination(p)} />
+        <Pagination
+          showQuickJumper
+          defaultCurrent={1}
+          total={totalPage}
+          onChange={p => this.handlePagination(p)}
+        />
         <Modal
           onCancel={this.handleCancel.bind(this)}
           maskClosable={true}
@@ -326,12 +383,17 @@ class DataTable extends Component {
             <FormItem label="name">
               {getFieldDecorator("name", {
                 rules: [{ required: true, message: "请输入name!" }]
-              })(<Input placeholder="table name" onBlur={(e)=>this.handleChange(e, "name")}/>)}
+              })(<Input placeholder="table name" onBlur={e => this.handleChange(e, "name")} />)}
             </FormItem>
             <FormItem label="description">
               {getFieldDecorator("description", {
                 rules: [{ required: true, message: "请输入description!" }]
-              })(<Input placeholder="table description" onBlur={(e)=>this.handleChange(e, "description")}/>)}
+              })(
+                <Input
+                  placeholder="table description"
+                  onBlur={e => this.handleChange(e, "description")}
+                />
+              )}
             </FormItem>
             <FormItem>
               <Button type="primary" htmlType="submit" className="login-form-button">
