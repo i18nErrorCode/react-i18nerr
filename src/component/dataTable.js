@@ -37,19 +37,19 @@ class DataTable extends Component {
     fileType: "js", // 选择下载的文件类型
     columns: [
       {
-        title: "table name",
+        title: "表格名称",
         dataIndex: "name"
       },
       {
-        title: "description",
+        title: "表格描述",
         dataIndex: "description"
       },
       {
-        title: "username",
+        title: "用户名",
         dataIndex: "username"
       },
       {
-        title: "member",
+        title: "成员",
         dataIndex: "member",
         render: (text, record) => {
           return (
@@ -85,13 +85,13 @@ class DataTable extends Component {
         }
       },
       {
-        title: "operation",
+        title: "操作",
         dataIndex: "operation",
         render: (text, record) => {
           return (
             <Row>
               <Col span={2}>
-                <Link to={`info/${record.id}`}>详情</Link>
+                <Link to={`info/${record.id}/${record.name}`}>详情</Link>
               </Col>
               {this.props.uid && (
                 <Col span={8}>
@@ -120,7 +120,9 @@ class DataTable extends Component {
                   <Button>
                     <a
                       target="_blank"
-                      href={"http://192.168.8.144:3000/api/raw/"+record.id+"."+this.state.fileType}
+                      href={
+                        "http://192.168.8.144:3000/api/raw/" + record.id + "." + this.state.fileType
+                      }
                     >
                       下载
                     </a>
@@ -238,13 +240,18 @@ class DataTable extends Component {
             }
           }
         `)();
-          message.info("操作成功");
+          Modal.success({
+            title: "操作成功"
+          });
           this.setState({
             visible: false
           });
           this.getTables();
         } catch (err) {
-          console.error("handle table err: ", err);
+          Modal.error({
+            title: "操作失败",
+            content: err.message
+          });
         }
       }
     });
@@ -297,7 +304,7 @@ class DataTable extends Component {
     try {
       const data = await graphql(`
       query getTableList {
-        me {
+        public {
           tables(query: { limit: 10, page: ${page} keyJson: ${_keyJson} }) {
             data {
               id
@@ -322,8 +329,8 @@ class DataTable extends Component {
         }
       }
     `)();
-      this.props.storeTable(get(data, ["me", "tables", "data"]));
-      this.setState({ totalPage: data.me.tables.meta.count });
+      this.props.storeTable(get(data, ["public", "tables", "data"]));
+      this.setState({ totalPage: data.public.tables.meta.count });
     } catch (err) {
       console.error("tables err: ", err);
     }
@@ -361,17 +368,21 @@ class DataTable extends Component {
     return (
       <div>
         {this.props.uid && (
-          <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
-            添加
-          </Button>
+          <div className="table-operations">
+            <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
+              添加
+            </Button>
+          </div>
         )}
         <Table pagination={false} bordered dataSource={dataSource} columns={columns} />
-        <Pagination
-          showQuickJumper
-          defaultCurrent={1}
-          total={totalPage}
-          onChange={p => this.handlePagination(p)}
-        />
+        <div className="table-pagination">
+          <Pagination
+            showQuickJumper
+            defaultCurrent={1}
+            total={totalPage}
+            onChange={p => this.handlePagination(p)}
+          />
+        </div>
         <Modal
           onCancel={this.handleCancel.bind(this)}
           maskClosable={true}

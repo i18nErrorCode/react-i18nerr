@@ -16,6 +16,7 @@ class Info extends Component {
       visible: false,
       action: "createRow",
       rowId: "",
+      haveMember: false,
       columns: [
         {
           title: "key",
@@ -44,14 +45,17 @@ class Info extends Component {
         {
           title: "操作",
           dataIndex: "operation",
-          render: (text, record) => (
-            <div>
-              <Button type="primary" onClick={() => this.updateRow(record)}>
-                修改
-              </Button>
-              <Button type="danger">刪除</Button>
-            </div>
-          )
+          render: (text, record) =>
+            this.state.haveMember ? (
+              <div>
+                <Button type="primary" onClick={() => this.updateRow(record)}>
+                  修改
+                </Button>
+                <Button type="danger">刪除</Button>
+              </div>
+            ) : (
+              <div />
+            )
         }
       ]
     };
@@ -123,6 +127,8 @@ class Info extends Component {
     try {
       const data = await this.getAllRows()();
       this.props.storeInfo(get(data, ["public", "rows", "data"]));
+      const memberData = await this.haveMember()();
+      this.setState({ haveMember: memberData.me.haveMember });
     } catch (err) {}
   }
 
@@ -143,6 +149,10 @@ class Info extends Component {
     });
   }
 
+  /**
+   * 获取row列表
+   * @returns {*}
+   */
   getAllRows() {
     const query = JSON.stringify({
       tid: this.props.match.params.id
@@ -167,6 +177,18 @@ class Info extends Component {
   }
 
   /**
+   * 验证用户是否在一个表的成员组中
+   * @returns {*}
+   */
+  haveMember() {
+    return graphql(`
+      query haveMember {
+        me {
+          haveMember(tid:"${this.props.match.params.id}")
+        }
+      }`);
+  }
+  /**
    * 处理输入框输入的值
    * @returns {XML}
    */
@@ -181,11 +203,13 @@ class Info extends Component {
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        <div className="table-operations">
-          <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
-            添加
-          </Button>
-        </div>
+        {this.state.haveMember && (
+          <div className="table-operations">
+            <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
+              添加
+            </Button>
+          </div>
+        )}
         <Table
           pagination={false}
           bordered
