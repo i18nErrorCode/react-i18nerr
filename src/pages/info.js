@@ -5,11 +5,13 @@ import { connect } from "react-redux";
 import { graphql } from "../lib/graphql";
 import { bindActionCreators } from "redux";
 import { store } from "../redux/info";
+import { rowFormStore } from "../redux/rowForm";
 import { Table, Input, Form, Button, Modal, message } from "antd";
 const FormItem = Form.Item;
 class Info extends Component {
   constructor(props) {
     super(props);
+    this.rowData = {};
     this.state = {
       visible: false,
       action: "createRow",
@@ -62,10 +64,10 @@ class Info extends Component {
   };
   handleAdd = () => {
     this.props.form.setFieldsValue({
-      key: "",
-      value_cn: "",
-      value_en: "",
-      value_tw: ""
+      key: this.props.ROW_FORM.key,
+      value_cn: this.props.ROW_FORM.value_cn,
+      value_en: this.props.ROW_FORM.value_en,
+      value_tw: this.props.ROW_FORM.value_tw
     });
     this.setState({
       visible: true,
@@ -99,15 +101,20 @@ class Info extends Component {
             }
           }
         `)();
-          message.info("操作成功");
+          Modal.success({
+            title: '操作成功'
+          });
           this.setState({
             visible: false
           });
           const data = await this.getAllRows()();
-
           this.props.storeInfo(get(data, ["me", "rows", "data"]));
+          this.props.storeRowData({});
         } catch (err) {
-          console.error(err);
+          Modal.error({
+            title: '操作失败',
+            content: err.message
+          });
         }
       }
     });
@@ -159,6 +166,16 @@ class Info extends Component {
       `);
   }
 
+  /**
+   * 处理输入框输入的值
+   * @returns {XML}
+   */
+  handleChange(e, _key){
+    console.log("key===>", e.target.value);
+    this.rowData[_key] = e.target.value;
+    this.props.storeRowData(this.rowData);
+  }
+
   render() {
     const dataSource = this.props.INFO;
     const { columns, action } = this.state;
@@ -175,22 +192,22 @@ class Info extends Component {
             <FormItem label="key">
               {getFieldDecorator("key", {
                 rules: [{ required: true, message: "请输入key!" }]
-              })(<Input placeholder="key" />)}
+              })(<Input placeholder="key" onBlur={(e) => this.handleChange(e, "key")}/>)}
             </FormItem>
             <FormItem label="简体中文">
               {getFieldDecorator("value_cn", {
                 rules: [{ required: true, message: "请输入简体中文!" }]
-              })(<Input placeholder="简体中文" />)}
+              })(<Input placeholder="简体中文" onBlur={(e) => this.handleChange(e, "value_cn")}/>)}
             </FormItem>
             <FormItem label="English">
               {getFieldDecorator("value_en", {
                 rules: [{ required: true, message: "请输入英文!" }]
-              })(<Input placeholder="English" />)}
+              })(<Input placeholder="English" onBlur={(e) => this.handleChange(e, "value_en")}/>)}
             </FormItem>
             <FormItem label="繁体中文">
               {getFieldDecorator("value_tw", {
                 rules: [{ required: true, message: "请输入繁体中文!" }]
-              })(<Input placeholder="繁体中文" />)}
+              })(<Input placeholder="繁体中文" onBlur={(e) => this.handleChange(e, "value_tw")}/>)}
             </FormItem>
             <FormItem>
               <Button type="primary" htmlType="submit" className="login-form-button">
@@ -210,13 +227,15 @@ const connection = cmp => {
   return connect(
     function mapStateToProps(state) {
       return {
-        INFO: state.INFO || []
+        INFO: state.INFO || [],
+        ROW_FORM: state.ROW_FORM
       };
     },
     function mapDispatchToProps(dispatch) {
       return bindActionCreators(
         {
-          storeInfo: store
+          storeInfo: store,
+          storeRowData: rowFormStore
         },
         dispatch
       );

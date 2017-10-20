@@ -5,12 +5,14 @@ import configureStore from './createStore';
 import userReducer from './user';
 import infoReducer from './info';
 import tableReducer from './table';
+import rowFormReducer from './rowForm';
 
 function createStore() {
   const rootReducer = combineReducers({
     USER: userReducer,
     INFO: infoReducer,
     TABLE: tableReducer,
+    ROW_FORM: rowFormReducer,
   });
 
   return configureStore(rootReducer);
