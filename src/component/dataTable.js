@@ -121,7 +121,7 @@ class DataTable extends Component {
                     <a
                       target="_blank"
                       href={
-                        "http://192.168.8.144:3000/api/raw/" + record.id + "." + this.state.fileType
+                        "http://192.168.8.144:6099/api/raw/" + record.id + "." + this.state.fileType
                       }
                     >
                       下载
