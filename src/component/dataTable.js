@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import get from "lodash.get";
+import React, { Component } from 'react';
+import get from 'lodash.get';
 import {
   Table,
   Input,
@@ -12,13 +12,13 @@ import {
   Select,
   Row,
   Col
-} from "antd";
-import { store } from "../redux/table";
-import { tableFormStore } from "../redux/tableForm";
-import { graphql } from "../lib/graphql";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+} from 'antd';
+import { store } from '../redux/table';
+import { tableFormStore } from '../redux/tableForm';
+import { graphql } from '../lib/graphql';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -27,30 +27,30 @@ class DataTable extends Component {
   state = {
     tables: { data: [], meta: {} },
     totalPage: 0,
-    action: "",
+    action: '',
     removeTable: false, // 是否删除表格
     isRemoveMember: false, // 默认false为添加
-    deleteMember: "", // 要删除的成员
-    rowId: "",
+    deleteMember: '', // 要删除的成员
+    rowId: '',
     visible: false,
     showMemberModal: false,
-    fileType: "js", // 选择下载的文件类型
+    fileType: 'js', // 选择下载的文件类型
     columns: [
       {
-        title: "表格名称",
-        dataIndex: "name"
+        title: '表格名称',
+        dataIndex: 'name'
       },
       {
-        title: "表格描述",
-        dataIndex: "description"
+        title: '表格描述',
+        dataIndex: 'description'
       },
       {
-        title: "用户名",
-        dataIndex: "username"
+        title: '用户名',
+        dataIndex: 'username'
       },
       {
-        title: "成员",
-        dataIndex: "member",
+        title: '成员',
+        dataIndex: 'member',
         render: (text, record) => {
           return (
             <div>
@@ -77,7 +77,7 @@ class DataTable extends Component {
                   type="dashed"
                   onClick={() => this.addMember(record)}
                 >
-                  + Add{" "}
+                  + Add{' '}
                 </Button>
               )}
             </div>
@@ -85,13 +85,15 @@ class DataTable extends Component {
         }
       },
       {
-        title: "操作",
-        dataIndex: "operation",
+        title: '操作',
+        dataIndex: 'operation',
         render: (text, record) => {
           return (
             <Row>
-              <Col span={2}>
-                <Link to={`info/${record.id}/${record.name}`}>详情</Link>
+              <Col span={4}>
+                <Button>
+                  <Link to={`info/${record.id}/${record.name}`}>详情</Link>
+                </Button>
               </Col>
               {this.props.uid && (
                 <Col span={8}>
@@ -121,7 +123,7 @@ class DataTable extends Component {
                     <a
                       target="_blank"
                       href={
-                        "http://192.168.8.144:6099/api/raw/" + record.id + "." + this.state.fileType
+                        'http://192.168.8.144:6099/api/raw/' + record.id + '.' + this.state.fileType
                       }
                     >
                       下载
@@ -155,7 +157,7 @@ class DataTable extends Component {
     });
     this.setState({
       visible: true,
-      action: "createTable"
+      action: 'createTable'
     });
   };
   /**
@@ -169,7 +171,7 @@ class DataTable extends Component {
     });
     this.setState({
       visible: true,
-      action: "updateTable",
+      action: 'updateTable',
       rowId: record.id
     });
   };
@@ -218,10 +220,10 @@ class DataTable extends Component {
       if (!err) {
         const { rowId } = this.state;
         let _argv;
-        if (action === "updateTable") {
+        if (action === 'updateTable') {
           _argv = `{id: "${rowId}", name: "${values.name}", description: "${values.description}"}`;
         }
-        if (action === "createTable") {
+        if (action === 'createTable') {
           _argv = `{name: "${values.name}", description: "${values.description}"}`;
         }
         try {
@@ -241,7 +243,7 @@ class DataTable extends Component {
           }
         `)();
           Modal.success({
-            title: "操作成功"
+            title: '操作成功'
           });
           this.setState({
             visible: false
@@ -249,7 +251,7 @@ class DataTable extends Component {
           this.getTables();
         } catch (err) {
           Modal.error({
-            title: "操作失败",
+            title: '操作失败',
             content: err.message
           });
         }
@@ -284,7 +286,7 @@ class DataTable extends Component {
         this.getTables();
       }
     } catch (err) {
-      console.error("changeMember err: ", err);
+      console.error('changeMember err: ', err);
     }
   }
   componentWillMount() {
@@ -329,10 +331,10 @@ class DataTable extends Component {
         }
       }
     `)();
-      this.props.storeTable(get(data, ["public", "tables", "data"]));
+      this.props.storeTable(get(data, ['public', 'tables', 'data']));
       this.setState({ totalPage: data.public.tables.meta.count });
     } catch (err) {
-      console.error("tables err: ", err);
+      console.error('tables err: ', err);
     }
   }
 
@@ -392,17 +394,17 @@ class DataTable extends Component {
         >
           <Form onSubmit={e => this.handleSubmit(e, action)} className="login-form">
             <FormItem label="name">
-              {getFieldDecorator("name", {
-                rules: [{ required: true, message: "请输入name!" }]
-              })(<Input placeholder="table name" onBlur={e => this.handleChange(e, "name")} />)}
+              {getFieldDecorator('name', {
+                rules: [{ required: true, message: '请输入name!' }]
+              })(<Input placeholder="table name" onBlur={e => this.handleChange(e, 'name')} />)}
             </FormItem>
             <FormItem label="description">
-              {getFieldDecorator("description", {
-                rules: [{ required: true, message: "请输入description!" }]
+              {getFieldDecorator('description', {
+                rules: [{ required: true, message: '请输入description!' }]
               })(
                 <Input
                   placeholder="table description"
-                  onBlur={e => this.handleChange(e, "description")}
+                  onBlur={e => this.handleChange(e, 'description')}
                 />
               )}
             </FormItem>
