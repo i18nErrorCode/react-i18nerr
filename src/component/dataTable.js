@@ -97,10 +97,11 @@ class DataTable extends Component {
               </Col>
               {this.props.uid && (
                 <Col span={8}>
-                  <span className="action-btn" onClick={() => this.handleEdit(record)}>
-                    <span className="ant-divider" />
+                  <span className="ant-divider" />
+                  <Button onClick={() => this.handleEdit(record)}>
                     修改
-                  </span>
+                    <span className="action-btn" />
+                  </Button>
                 </Col>
               )}
               {!this.props.uid && (
