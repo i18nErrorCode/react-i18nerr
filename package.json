@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "antd": "^2.13.6",
+    "antd": "^3.0.0",
     "axios": "^0.17.0",
     "localforage": "^1.5.2",
     "lodash.get": "^4.4.2",
