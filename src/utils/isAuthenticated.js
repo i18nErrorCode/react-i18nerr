@@ -1,6 +1,8 @@
+import React from 'react';
+import { Redirect } from 'react-router-dom';
 const jwtDecode = require('jwt-decode');
 
-const isAuthenticated = () => {
+const checkToken = () => {
   const token = localStorage.getItem('token');
 
   if(token) {
@@ -15,6 +17,12 @@ const isAuthenticated = () => {
     return true;
   }
   return false;
+};
+const isAuthenticated  = (component) => {
+  if(checkToken()){
+    return component
+  }else{
+    return <Redirect to={{pathname: "/login"}} />
+  }
 }
-
 export default isAuthenticated

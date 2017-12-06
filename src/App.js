@@ -12,15 +12,9 @@ import store from './redux/index';
 import './App.css';
 
 class App extends Component {
+
   render() {
-    /* 保护路由组件 */
-    const PrivateRoute = ({ component: Component, ...rest }) => (
-      <Route
-        {...rest}
-        render={props => isAuthenticated() === true ?
-          (<Component {...props} />) :
-          (<Redirect to={{pathname: "/login"}} />) } />
-    );
+
     return (
       <Provider store={store}>
         <Router history={HashRouter}>
@@ -71,10 +65,10 @@ class App extends Component {
                 }}
               >
                 <Switch>
-                  <PrivateRoute
+                  <Route
                     exact
                     path="/"
-                    component={<DynamicLoad promise={import('./pages/home')} />}
+                    render={() => isAuthenticated(<DynamicLoad promise={import('./pages/home')} />)}
                   />
                   <Route
                     exact
@@ -86,20 +80,20 @@ class App extends Component {
                     path="/register"
                     render={() => <DynamicLoad promise={import('./pages/register')} />}
                   />
-                  <PrivateRoute
+                  <Route
                     exact
                     path="/info/:id/:name"
-                    component={<DynamicLoad promise={import('./pages/info')} />}
+                    render={() => isAuthenticated(<DynamicLoad promise={import('./pages/info')} />)}
                   />
-                  <PrivateRoute
+                  <Route
                     exact
                     path="/table"
-                    component={<DynamicLoad promise={import('./pages/userTables')} />}
+                    render={() => isAuthenticated(<DynamicLoad promise={import('./pages/userTables')} />)}
                   />
-                  <PrivateRoute
+                  <Route
                     exact
                     path="/user"
-                    component={<DynamicLoad promise={import('./pages/userCenter')} />}
+                    render={() => isAuthenticated(<DynamicLoad promise={import('./pages/userCenter')} />)}
                   />
                 </Switch>
               </Card>

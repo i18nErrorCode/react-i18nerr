@@ -19,6 +19,7 @@ export function graphql(query = '') {
       .then(res => res.data)
       .then(data => {
         if (data.errors && data.errors.length) {
+          console.log("err=>", data.errors)
           return Promise.reject(data.errors[0]);
         }
         return data.data;
