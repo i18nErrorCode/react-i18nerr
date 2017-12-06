@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Row, Col, Card } from 'antd';
-import { HashRouter as Router, Route, Switch, HashRouter } from 'react-router-dom';
+import { HashRouter as Router, Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
-
+import isAuthenticated from './utils/isAuthenticated';
 import DynamicLoad from './component/dynamic-load';
 
 import Footer from './component/footer';
@@ -13,6 +13,14 @@ import './App.css';
 
 class App extends Component {
   render() {
+    /* 保护路由组件 */
+    const PrivateRoute = ({ component: Component, ...rest }) => (
+      <Route
+        {...rest}
+        render={props => isAuthenticated() === true ?
+          (<Component {...props} />) :
+          (<Redirect to={{pathname: "/login"}} />) } />
+    );
     return (
       <Provider store={store}>
         <Router history={HashRouter}>
@@ -63,10 +71,10 @@ class App extends Component {
                 }}
               >
                 <Switch>
-                  <Route
+                  <PrivateRoute
                     exact
                     path="/"
-                    render={() => <DynamicLoad promise={import('./pages/home')} />}
+                    component={<DynamicLoad promise={import('./pages/home')} />}
                   />
                   <Route
                     exact
@@ -78,20 +86,20 @@ class App extends Component {
                     path="/register"
                     render={() => <DynamicLoad promise={import('./pages/register')} />}
                   />
-                  <Route
+                  <PrivateRoute
                     exact
                     path="/info/:id/:name"
-                    render={() => <DynamicLoad promise={import('./pages/info')} />}
+                    component={<DynamicLoad promise={import('./pages/info')} />}
                   />
-                  <Route
+                  <PrivateRoute
                     exact
                     path="/table"
-                    render={() => <DynamicLoad promise={import('./pages/userTables')} />}
+                    component={<DynamicLoad promise={import('./pages/userTables')} />}
                   />
-                  <Route
+                  <PrivateRoute
                     exact
                     path="/user"
-                    render={() => <DynamicLoad promise={import('./pages/userCenter')} />}
+                    component={<DynamicLoad promise={import('./pages/userCenter')} />}
                   />
                 </Switch>
               </Card>
