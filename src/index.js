@@ -1,12 +1,28 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import dva from 'dva';
+import { notification } from 'antd';
+import { createLogger } from 'redux-logger';
+import createHistory from 'history/createBrowserHistory';
 import './index.css';
-import App from './App';
-import {onStoreDone} from './redux/createStore';
-import registerServiceWorker from './registerServiceWorker';
-
-onStoreDone(()=>{
-  ReactDOM.render(<App />, document.getElementById('root'));
+// 1. Initialize
+const app = dva({
+  history: createHistory(),
+  onError(e) {
+    notification['error']({
+      message: 'Error:',
+      description: e.message,
+    });
+  },
+  onAction: createLogger(),
 });
 
-registerServiceWorker();
+// 2. Plugins
+// app.use({});
+
+// 3. Model
+// app.model(require('./models/example'));
+
+// 4. Router
+app.router(require('./router'));
+
+// 5. Start
+app.start('#root');
