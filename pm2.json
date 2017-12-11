@@ -2,12 +2,12 @@
   "name": "react-i18n-error:6098",
   "script": "serve",
   "env": {
-    "PM2_SERVE_PATH": "./build",
+    "PM2_SERVE_PATH": "./dist",
     "PM2_SERVE_PORT": 6098
   },
   "autorestart": true,
   "restart_delay": 500,
-  "watch": ["build"],
+  "watch": ["dist"],
   "watch_options": {
     "followSymlinks": false
   },
