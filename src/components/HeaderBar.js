@@ -18,20 +18,17 @@ class HeaderBar extends React.Component {
     });
   };
   logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("uid");
-    localStorage.removeItem("username");
-    window.location.href = "/login"
+    localStorage.removeItem('token');
+    localStorage.removeItem('uid');
+    localStorage.removeItem('username');
+    // return (<Redirect to={{pathname: "/login"}} />)
+    // window.location.href = "#/login"
   };
   render() {
     return (
       <Row className={styles.container}>
         <Col span={20}>
-          <Menu
-            onClick={this.handleClick}
-            selectedKeys={[this.state.current]}
-            mode="horizontal"
-          >
+          <Menu onClick={this.handleClick} selectedKeys={[this.state.current]} mode="horizontal">
             <Menu.Item key="home">
               <Link to="/">
                 <Icon type="home" />
@@ -47,18 +44,22 @@ class HeaderBar extends React.Component {
           </Menu>
         </Col>
         <Col span={4}>
-          {localStorage.getItem("username") ?
-            <span>您好: {localStorage.getItem("username")} !</span>
-              :
+          {localStorage.getItem('username') ? (
+            <span>您好: {localStorage.getItem('username')} !</span>
+          ) : (
             <span className={styles.action}>
               <Link to="/login">登录</Link>
             </span>
-          }
+          )}
           <span className={styles.action}>
             <Link to="/register">注册</Link>
           </span>
           <span className={styles.action}>
-            <a onClick={() => this.logout()}><Icon type="logout" />登出</a>
+            <Link to="/login">
+              <span onClick={() => this.logout()}>
+                <Icon type="logout" />登出
+              </span>
+            </Link>
           </span>
         </Col>
       </Row>
