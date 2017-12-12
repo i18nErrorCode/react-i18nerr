@@ -5,7 +5,6 @@ import createHistory from 'history/createBrowserHistory';
 import './index.css';
 // 1. Initialize
 const app = dva({
-  history: createHistory(),
   onError(e) {
     notification['error']({
       message: 'Error:',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, Switch, Redirect } from 'dva/router';
+import { Router, Route, Switch, Redirect, HashRouter } from 'dva/router';
 import dynamic from 'dva/dynamic';
 import isAuthenticated from './utils/isAuthenticated';
 /* 保护路由组件 */
@@ -41,7 +41,7 @@ function RouterConfig({ history, app }) {
     component: () => import('./routes/Register/Register'),
   });
   return (
-    <Router history={history}>
+    <HashRouter history={history}>
       <Switch>
         {
           routes.map(({ path, ...dynamics }, key) => (
@@ -58,7 +58,7 @@ function RouterConfig({ history, app }) {
         <Route path="/login" exact component={Login} />
         <Route path="/register" exact component={Register} />
       </Switch>
-    </Router>
+    </HashRouter>
   );
 }
 
