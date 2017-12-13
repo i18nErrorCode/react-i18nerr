@@ -13,6 +13,7 @@
       "extraBabelPlugins": [
         "transform-runtime",
         "transform-decorators-legacy",
+        ["transform-remove-console", { "exclude": [ "error", "warn"] }],
         ["import", { "libraryName": "antd", "style": true}]
       ]
     }
