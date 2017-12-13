@@ -1,5 +1,4 @@
 import * as tablesService from '../services/tables';
-import { Modal } from 'antd';
 export default {
 
   namespace: 'tables',
@@ -15,7 +14,6 @@ export default {
       console.log("reducer save==>", action)
       return { ...state, ...action.payload };
     },
-
   },
 
 
@@ -32,27 +30,25 @@ export default {
       const _uid = localStorage.getItem("uid");
       const _keyJson = {uid: _uid};
       const query = {
-        limit: 10,
+        limit: 50,
         keyJson: JSON.stringify(_keyJson)
       };
       yield put({ type: "getTableList", payload:{query}});
     },
     *changeMember({ payload }, { call, put }) {
       const {data} = yield call(tablesService.changeMember, payload);
+      console.log("改变成员: ", data)
+      const _uid = localStorage.getItem("uid");
+      const _keyJson = {uid: _uid};
+      const query = {
+        limit: 50,
+        keyJson: JSON.stringify(_keyJson)
+      };
+      yield put({ type: "getTableList", payload:{query}});
     },
     showModal(state, action) {
       console.log("effects showModal==>", action)
       return { ...state, ...action.payload };
     },
-  },
-
-  subscriptions: {
-    setup({ dispatch, history }) {
-      return history.listen(({pathname, query}) => {
-        if(pathname === '/') {
-          // dispatch({ type: 'fetchVerifyCode'})
-        }
-      })
-    }
-  },
+  }
 };

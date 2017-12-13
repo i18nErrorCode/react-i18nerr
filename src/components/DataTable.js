@@ -68,14 +68,13 @@ class DataTable extends Component {
                   return !this.props.uid ? (
                     <Tag
                       key={v.uid}
-                      onClose={() => this.deleteMember(record, v.username)}
                     >
                       {v.username}
                     </Tag>
                   ) : (
                     <Tag
                       key={v.uid}
-                      closable={this.props.tables.username === record.username ? false : true}
+                      closable={v.username === this.props.username ? false : true}
                       onClose={() => this.deleteMember(record, v.username)}
                     >
                       {v.username}
@@ -243,7 +242,7 @@ class DataTable extends Component {
       type: 'tables/getTableList',
       payload: {
         query: {
-          limit: 10,
+          limit: 50,
           page: page,
           keyJson: JSON.stringify(_keyJson)
         }
@@ -338,6 +337,7 @@ class DataTable extends Component {
         />
         <div className="table-pagination">
           <Pagination
+            pageSize={50}
             showQuickJumper
             defaultCurrent={1}
             total={tablesMeta.count}

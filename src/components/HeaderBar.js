@@ -47,13 +47,16 @@ class HeaderBar extends React.Component {
           {localStorage.getItem('username') ? (
             <span>您好: {localStorage.getItem('username')} !</span>
           ) : (
-            <span className={styles.action}>
-              <Link to="/login">登录</Link>
+            <span>
+              <span className={styles.action}>
+                <Link to="/login">登录</Link>
+              </span>
+              <span className={styles.action}>
+                <Link to="/register">注册</Link>
+              </span>
             </span>
           )}
-          <span className={styles.action}>
-            <Link to="/register">注册</Link>
-          </span>
+
           <span className={styles.action}>
             <Link to="/login">
               <span onClick={() => this.logout()}>

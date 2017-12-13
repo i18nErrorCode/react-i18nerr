@@ -1,10 +1,22 @@
 import { createApolloFetch } from 'apollo-fetch';
 const uri = "http://192.168.8.144:6099/api/graphql";
 
+function handleLogOut() {
+  console.log("logout", window);
+  localStorage.removeItem("token");
+  localStorage.removeItem("uid");
+  localStorage.removeItem("username");
+  window.location.href="#login"
+}
 function checkStatus(response) {
   // console.log('request status ', response);
   if (!!response.parsed.errors) {
     const _error = response.parsed.errors[0].message;
+
+    if(_error === "Invalid token") {
+      console.log("err==>", _error);
+      handleLogOut()
+    }
     const error = new Error(_error);
     error.response = response;
     throw error;
@@ -37,9 +49,9 @@ export default async function request(query, variables) {
     next();
   });
   apolloFetch.useAfter(({ response }, next) => {
-    checkStatus(response)
+    checkStatus(response);
     next();
-  })
+  });
 
   // apolloFetch.useAfter(({ response }, next) => {
   //   // console.log('request after status ', response);

@@ -46,15 +46,5 @@ export default {
       };
       yield put({type: "getRowsList", payload: _payload});
     }
-  },
-
-  subscriptions: {
-    setup({ dispatch, history }) {
-      return history.listen(({pathname, query}) => {
-        if(pathname === '/') {
-          // dispatch({ type: 'fetchVerifyCode'})
-        }
-      })
-    }
-  },
+  }
 };
