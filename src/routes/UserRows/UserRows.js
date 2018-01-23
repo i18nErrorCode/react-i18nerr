@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import MainLayout from '../../components/MainLayout';
-import { connect } from 'dva';
-import { Table, Input, Form, Button, Modal } from 'antd';
+import React, { Component } from "react";
+import MainLayout from "../../components/MainLayout";
+import { connect } from "dva";
+import { Table, Input, Form, Button, Modal } from "antd";
 const FormItem = Form.Item;
 
 @connect(state => ({
@@ -13,37 +13,43 @@ class UserRows extends Component {
     this.rowData = {};
     this.state = {
       visible: false,
-      action: 'createRow',
-      rowId: '',
+      action: "createRow",
+      rowId: "",
       haveMember: false,
       columns: [
         {
-          title: 'key',
-          dataIndex: 'key',
-          key: 'key',
-          width: '25%'
+          title: "Code",
+          dataIndex: "code",
+          key: "code",
+          width: "5%"
         },
         {
-          title: '简体中文',
-          dataIndex: 'value_cn',
-          key: 'value_cn',
-          width: '25%'
+          title: "Key",
+          dataIndex: "key",
+          key: "key",
+          width: "20%"
         },
         {
-          title: 'English',
-          dataIndex: 'value_en',
-          key: 'value_en',
-          width: '25%'
+          title: "简体中文",
+          dataIndex: "value_cn",
+          key: "value_cn",
+          width: "25%"
         },
         {
-          title: '繁体中文',
-          dataIndex: 'value_tw',
-          key: 'value_tw',
-          width: '25%'
+          title: "English",
+          dataIndex: "value_en",
+          key: "value_en",
+          width: "25%"
         },
         {
-          title: '操作',
-          dataIndex: 'operation',
+          title: "繁体中文",
+          dataIndex: "value_tw",
+          key: "value_tw",
+          width: "25%"
+        },
+        {
+          title: "操作",
+          dataIndex: "operation",
           render: (text, record) =>
             this.props.rows.haveMember ? (
               <div>
@@ -71,7 +77,7 @@ class UserRows extends Component {
   handleAdd = () => {
     this.setState({
       visible: true,
-      action: 'createRow',
+      action: "createRow"
     });
   };
   /**
@@ -80,7 +86,7 @@ class UserRows extends Component {
   updateRow(record) {
     this.setState({
       visible: true,
-      action: 'updateRow',
+      action: "updateRow",
       rowId: record.id
     });
     this.props.form.setFieldsValue({
@@ -99,19 +105,19 @@ class UserRows extends Component {
     e.preventDefault();
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        if(action === "createRow") {
-          values.tid = this.props.location.search.split('&')[0].replace('?id=', '');
+        if (action === "createRow") {
+          values.tid = this.props.location.search.split("&")[0].replace("?id=", "");
           values.id = this.state.rowId;
           this.props.dispatch({
-            type: 'rows/createRow',
-            payload: {argv: values}
+            type: "rows/createRow",
+            payload: { argv: values }
           });
-        }else {
-          values.tid = this.props.location.search.split('&')[0].replace('?id=', '');
+        } else {
+          values.tid = this.props.location.search.split("&")[0].replace("?id=", "");
           values.id = this.state.rowId;
           this.props.dispatch({
-            type: 'rows/updateRow',
-            payload: {argv: values}
+            type: "rows/updateRow",
+            payload: { argv: values }
           });
         }
         this.setState({
@@ -124,9 +130,9 @@ class UserRows extends Component {
    * 获取row列表
    * @returns {*}
    */
-  getRows = (id) => {
+  getRows = id => {
     this.props.dispatch({
-      type: 'rows/getRowsList',
+      type: "rows/getRowsList",
       payload: { id: id }
     });
   };
@@ -143,14 +149,13 @@ class UserRows extends Component {
     this.rowData[_key] = e.target.value;
   }
   componentWillMount() {
-    const id = this.props.location.search.split('&')[0].replace('?id=', '');
+    const id = this.props.location.search.split("&")[0].replace("?id=", "");
     this.getRows(id);
     this.props.dispatch({
-      type: 'rows/getMembers',
+      type: "rows/getMembers",
       payload: { tid: id }
     });
   }
-
 
   render() {
     // console.log('user rows ==> ', this.props.rows);
@@ -161,11 +166,7 @@ class UserRows extends Component {
       <MainLayout>
         {haveMember && (
           <div className="table-operations">
-            <Button
-              type="primary"
-              className="editable-add-btn"
-              onClick={this.handleAdd}
-            >
+            <Button type="primary" className="editable-add-btn" onClick={this.handleAdd}>
               添加
             </Button>
           </div>
@@ -185,62 +186,32 @@ class UserRows extends Component {
           footer={null}
           visible={this.state.visible}
         >
-          <Form
-            onSubmit={e => this.handleSubmit(e, action)}
-            className="login-form"
-          >
+          <Form onSubmit={e => this.handleSubmit(e, action)} className="login-form">
             <FormItem label="key">
-              {getFieldDecorator('key', {
-                rules: [{ required: true, message: '请输入key!' }]
-              })(
-                <Input
-                  placeholder="key"
-                  onBlur={e => this.handleChange(e, 'key')}
-                />
-              )}
+              {getFieldDecorator("key", {
+                rules: [{ required: true, message: "请输入key!" }]
+              })(<Input placeholder="key" onBlur={e => this.handleChange(e, "key")} />)}
             </FormItem>
             <FormItem label="简体中文">
-              {getFieldDecorator('value_cn', {
-                rules: [{ required: true, message: '请输入简体中文!' }]
-              })(
-                <Input
-                  placeholder="简体中文"
-                  onBlur={e => this.handleChange(e, 'value_cn')}
-                />
-              )}
+              {getFieldDecorator("value_cn", {
+                rules: [{ required: true, message: "请输入简体中文!" }]
+              })(<Input placeholder="简体中文" onBlur={e => this.handleChange(e, "value_cn")} />)}
             </FormItem>
             <FormItem label="English">
-              {getFieldDecorator('value_en', {
-                rules: [{ required: true, message: '请输入英文!' }]
-              })(
-                <Input
-                  placeholder="English"
-                  onBlur={e => this.handleChange(e, 'value_en')}
-                />
-              )}
+              {getFieldDecorator("value_en", {
+                rules: [{ required: true, message: "请输入英文!" }]
+              })(<Input placeholder="English" onBlur={e => this.handleChange(e, "value_en")} />)}
             </FormItem>
             <FormItem label="繁体中文">
-              {getFieldDecorator('value_tw', {
-                rules: [{ required: true, message: '请输入繁体中文!' }]
-              })(
-                <Input
-                  placeholder="繁体中文"
-                  onBlur={e => this.handleChange(e, 'value_tw')}
-                />
-              )}
+              {getFieldDecorator("value_tw", {
+                rules: [{ required: true, message: "请输入繁体中文!" }]
+              })(<Input placeholder="繁体中文" onBlur={e => this.handleChange(e, "value_tw")} />)}
             </FormItem>
             <FormItem>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="login-form-button"
-              >
+              <Button type="primary" htmlType="submit" className="login-form-button">
                 确定
               </Button>
-              <Button
-                onClick={this.handleCancel.bind(this)}
-                className="login-form-button"
-              >
+              <Button onClick={this.handleCancel.bind(this)} className="login-form-button">
                 取消
               </Button>
             </FormItem>

@@ -6,6 +6,7 @@ export function getRows(id) {
             rows(id: $id){
               data{
                 id
+                code
                 tid
                 uid
                 key
