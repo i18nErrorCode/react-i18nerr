@@ -1,7 +1,6 @@
 import dva from 'dva';
 import { notification } from 'antd';
 import { createLogger } from 'redux-logger';
-import createHistory from 'history/createBrowserHistory';
 import './index.css';
 // 1. Initialize
 const app = dva({
@@ -11,7 +10,7 @@ const app = dva({
       description: e.message,
     });
   },
-  onAction: createLogger(),
+  onAction: process.env.NODE_ENV === `development` ? createLogger() : [],
 });
 
 // 2. Plugins

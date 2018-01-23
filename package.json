@@ -12,6 +12,7 @@
     "antd": "^3.0.0",
     "apollo-fetch": "^0.7.0",
     "babel-plugin-import": "^1.6.2",
+    "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-runtime": "^6.9.2",
     "dva": "^2.1.0",
     "jwt-decode": "^2.2.0",
