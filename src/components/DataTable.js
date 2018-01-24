@@ -303,7 +303,7 @@ class DataTable extends Component {
               <a
                 target="_blank"
                 href={
-                  'http://192.168.8.144:6099/api/raw/multi/' +
+                  'http://localhost:6099/api/raw/multi/' +
                   this.state.fileType +
                   '/' +
                   selectedRowKeys.join(',')

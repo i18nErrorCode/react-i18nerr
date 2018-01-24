@@ -1,5 +1,5 @@
 import { createApolloFetch } from 'apollo-fetch';
-const uri = "http://192.168.8.144:6099/api/graphql";
+const uri = "http://localhost:6099/api/graphql";
 
 function handleLogOut() {
   console.log("logout", window);
