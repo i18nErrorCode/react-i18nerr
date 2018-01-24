@@ -1,0 +1,10 @@
+version: '3'
+services:
+  i18n_nginx_static:
+    image: nginx:1.13.8-alpine
+    restart: always
+    working_dir: /home/static
+    volumes:
+       - ./dist:/usr/share/nginx/html
+    ports:
+      - 6098:80
